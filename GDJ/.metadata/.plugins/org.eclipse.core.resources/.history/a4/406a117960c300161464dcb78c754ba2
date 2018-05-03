@@ -1,0 +1,733 @@
+package cn.com.yxt.yunxiaotong.rebuild.fragment;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import com.alibaba.fastjson.JSON;
+
+import android.R.string;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import cn.com.igdj.library.base.ProgressBarFragment;
+import cn.com.igdj.library.net.BitmapImpl;
+import cn.com.igdj.library.utils.GotoUtil;
+import cn.com.igdj.library.utils.JSONResultHandler;
+import cn.com.igdj.library.utils.SelectPictureHelper;
+import cn.com.igdj.library.utils.ToastManager;
+import cn.com.igdj.library.utils.ToolUtil;
+import cn.com.yxt.R;
+import cn.com.yxt.yunxiaotong.activity.YXTQRCodeActivity;
+import cn.com.yxt.yunxiaotong.activity.YXTSentVoteDirectoryActivity;
+import cn.com.yxt.yunxiaotong.activity.YXTSettingActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtFileInfoListActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtMessageListActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtMyMessageListActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtNoticeHistory;
+import cn.com.yxt.yunxiaotong.activity.YxtSchoolHomeActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtSendNoticeActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtTeacherAPActivity;
+import cn.com.yxt.yunxiaotong.activity.YxtTeacherNoticeActivity;
+import cn.com.yxt.yunxiaotong.domain.YxtBadgeManager;
+import cn.com.yxt.yunxiaotong.domain.YxtChildList;
+import cn.com.yxt.yunxiaotong.domain.YxtCommenResult;
+import cn.com.yxt.yunxiaotong.domain.YxtMessageResult;
+import cn.com.yxt.yunxiaotong.domain.YxtUser;
+import cn.com.yxt.yunxiaotong.domain.YxtUserInfo;
+import cn.com.yxt.yunxiaotong.domain.YxtUserInfoResult;
+import cn.com.yxt.yunxiaotong.net.CloudClientYXT;
+import cn.com.yxt.yunxiaotong.net.ConstantYXT;
+import cn.com.yxt.yunxiaotong.net.NetImplYxt;
+import cn.com.yxt.yunxiaotong.rebuild.YXTTabActivity;
+import cn.com.yxt.yunxiaotong.rebuild.activity.MyCameraActivity;
+import cn.com.yxt.yunxiaotong.rebuild.fragment.YXTConversationFragment.MainReceiver;
+import cn.com.yxt.yunxiaotong.util.BitmapCompress;
+import cn.com.yxt.yunxiaotong.util.GlobalDatasConstant;
+import cn.com.yxt.yunxiaotong.util.GlobalDatasYxt;
+
+public class YXTMemberCenterFragment extends ProgressBarFragment {
+
+	SelectPictureHelper selectPictureHelper;
+
+	ImageView userAvatar;
+	TextView userNameTextView;
+	TextView classNameTextView;
+	TextView schoolNameTextView;
+	TextView receiveNotice;
+
+	private LinearLayout mVoteLinearLayout;
+	LinearLayout noticeLayout;
+	LinearLayout receiveNoticeLayout;
+	LinearLayout linearLayout1;
+	LinearLayout linearLayout2;
+	ViewGroup settingLayout; // 设置
+	View divider1;
+//	View divider2;
+	View divider3;
+	View divider4;
+	View divider5;
+	View divider6;
+	View divider7;
+
+	private GridView gridViewClassList;
+	private ClassListAdapter classListAdapter;
+	
+	private MainReceiver noticeReceiver;
+
+	private List<YxtChildList> childList;
+
+	String headLogo;
+	String flag;
+	private Bitmap bitmap;
+	String userID;
+	String userName = "";
+	String studentID = "";
+	String studentName = "";
+	static boolean needShowLogin = true;
+
+	String imagePath;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_yxt_member_center, container, false);
+		return view;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+//		if (null != savedInstanceState) {
+//			imagePath = savedInstanceState.getString("imagePath");
+//			if (imagePath != null) {
+//				uploadFile(imagePath);
+//			}
+//		}
+		
+//		selectPictureHelper = new SelectPictureHelper(false, YXTMemberCenterFragment.this);
+		if(GlobalDatasYxt.isLogin()){
+			initView();
+		}
+		
+
+	}
+
+	void initView() {
+		divider1 = getActivity().findViewById(R.id.divider1);
+//		divider2 = getActivity().findViewById(R.id.divider2);
+		divider3 = getActivity().findViewById(R.id.divider3);
+		divider4 = getActivity().findViewById(R.id.divider4);
+		divider5 = getActivity().findViewById(R.id.divider5);
+		divider6 = getActivity().findViewById(R.id.divider6);
+		divider7 = getActivity().findViewById(R.id.divider7);
+		linearLayout1 = (LinearLayout) getActivity().findViewById(R.id.l1);
+		linearLayout2 = (LinearLayout) getActivity().findViewById(R.id.l2);
+		receiveNoticeLayout = (LinearLayout) getActivity().findViewById(R.id.my_receive_message);
+		receiveNotice = (TextView) getActivity().findViewById(R.id.receive_message);
+		noticeLayout = (LinearLayout) getActivity().findViewById(R.id.my_message);
+		this.mVoteLinearLayout = (LinearLayout) getActivity().findViewById(R.id.my_vote);
+
+		userAvatar = (ImageView) getActivity().findViewById(R.id.item_img_m);
+		userAvatar.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				// selectPictureHelper = new SelectPictureHelper(false,
+				// YXTMemberCenterFragment.this);
+//				selectPictureHelper.buildDialog();
+				
+				final AlertDialog dialog = new AlertDialog.Builder(getActivity()).create();
+				dialog.show();
+				View view = LayoutInflater.from(getActivity()).inflate(R.layout.y_dialog_image_notice, null);
+				TextView takePhotoTextView = (TextView) view.findViewById(R.id.take_photo);
+				TextView photoAlbumTextView = (TextView) view.findViewById(R.id.photo_album);
+				
+				takePhotoTextView.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+//							scott启动自定义拍照
+							Intent it = new Intent(getActivity(),MyCameraActivity.class);
+							startActivityForResult(it, 0);
+							dialog.dismiss();
+					}
+				});
+				
+				photoAlbumTextView.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+						intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+						startActivityForResult(intent, 1);
+						dialog.dismiss();
+					}
+				});
+				Window window = dialog.getWindow();
+				window.setContentView(view);
+				WindowManager manager = getActivity().getWindowManager();
+				Display display = manager.getDefaultDisplay();
+				WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+				params.width = (int) (display.getWidth()*0.7);
+				dialog.getWindow().setAttributes(params);
+			}
+		});
+
+		userNameTextView = (TextView) getActivity().findViewById(R.id.item_name_m);
+		classNameTextView = (TextView) getActivity().findViewById(R.id.classname);
+		schoolNameTextView = (TextView) getActivity().findViewById(R.id.schoolname);
+
+		settingLayout = (ViewGroup) getActivity().findViewById(R.id.set);
+		settingLayout.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent();
+//				intent.setClass(getActivity(), YXTSettingActivity.class);
+				intent.setClass(getActivity(), YXTQRCodeActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		childList = new ArrayList<YxtChildList>();
+
+		gridViewClassList = (GridView) getActivity().findViewById(R.id.gridview);
+		classListAdapter = new ClassListAdapter();
+		gridViewClassList.setAdapter(classListAdapter);
+		
+		noticeReceiver = new MainReceiver();
+		getActivity().registerReceiver(noticeReceiver, new IntentFilter("notice.action"));
+
+		initData();
+	}
+
+	class MainReceiver extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals("notice.action")) {
+				getMessage();
+			} 
+		}
+	}
+	
+	private void showView() {
+		// 若为游客，则显示绑定按钮
+		if (ConstantYXT.USER_FLAG_NORMAL.equalsIgnoreCase(GlobalDatasYxt.getUser(getActivity()).getFlag())) {
+			linearLayout1.setVisibility(View.GONE);
+			linearLayout2.setVisibility(View.GONE);
+			noticeLayout.setVisibility(View.GONE);
+			receiveNoticeLayout.setVisibility(View.GONE);
+			gridViewClassList.setVisibility(View.GONE);
+			
+			mVoteLinearLayout.setVisibility(View.GONE);
+			divider7.setVisibility(View.GONE);
+
+			divider1.setVisibility(View.VISIBLE);
+//			divider2.setVisibility(View.GONE);
+			divider3.setVisibility(View.GONE);
+			divider4.setVisibility(View.GONE);
+			divider5.setVisibility(View.GONE);
+
+		} else if (ConstantYXT.USER_FLAG_PARENT.equalsIgnoreCase(GlobalDatasYxt.getUser(getActivity()).getFlag())) {
+			linearLayout1.setVisibility(View.GONE);
+			linearLayout2.setVisibility(View.GONE);
+			noticeLayout.setVisibility(View.GONE);
+			
+			mVoteLinearLayout.setVisibility(View.GONE);
+			divider7.setVisibility(View.GONE);
+
+			gridViewClassList.setVisibility(View.VISIBLE);
+
+			divider1.setVisibility(View.VISIBLE);
+//			divider2.setVisibility(View.VISIBLE);
+			divider3.setVisibility(View.GONE);
+			divider4.setVisibility(View.GONE);
+			divider5.setVisibility(View.VISIBLE);
+			divider6.setVisibility(View.GONE);
+
+		} else if (ConstantYXT.USER_FLAG_TEACHER.equalsIgnoreCase(GlobalDatasYxt.getUser(getActivity()).getFlag())) {
+
+			linearLayout1.setVisibility(View.VISIBLE);
+			linearLayout2.setVisibility(View.VISIBLE);
+			receiveNoticeLayout.setVisibility(View.VISIBLE);
+
+			if (GlobalDatasYxt.getUser(getActivity()).isIsclassadviser()
+					|| GlobalDatasYxt.getUser(getActivity()).isIsteaching()) {
+				noticeLayout.setVisibility(View.VISIBLE);
+				mVoteLinearLayout.setVisibility(View.VISIBLE);
+				divider7.setVisibility(View.VISIBLE);
+				divider6.setVisibility(View.VISIBLE);
+				noticeLayout.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View arg0) {
+						Intent intent = new Intent();
+						intent.setClass(getActivity(), YxtNoticeHistory.class);
+						startActivity(intent);
+					}
+				});
+				
+				mVoteLinearLayout.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+//						TODO 投票列表页
+						startActivity(new Intent(getActivity(), YXTSentVoteDirectoryActivity.class));
+					}
+				});
+				
+			} else {
+				noticeLayout.setVisibility(View.GONE);
+				divider6.setVisibility(View.GONE);
+			}
+
+			if (GlobalDatasYxt.getUser(getActivity()).isIsparent()) {
+				gridViewClassList.setVisibility(View.VISIBLE);
+//				divider2.setVisibility(View.VISIBLE);
+
+				CloudClientYXT.doHttpRequest(getActivity(), ConstantYXT.GET_MYCHILD,
+						NetImplYxt.getInstance().getMyChild(userID), null, new JSONResultHandler() {
+
+							@Override
+							public void onSuccess(String jsonString) {
+								setProgressBarVisibility(View.GONE);
+								setChildView(jsonString);
+							}
+
+							@Override
+							public void onError(String errorMessage) {
+								// method stub
+								setProgressBarVisibility(View.GONE);
+							}
+						});
+
+				receiveNoticeLayout.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View arg0) {
+						Intent intent = new Intent();
+						intent.setClass(getActivity(), YxtTeacherAPActivity.class);
+						startActivity(intent);
+					}
+				});
+			} else {
+				gridViewClassList.setVisibility(View.GONE);
+//				divider2.setVisibility(View.GONE);
+
+				receiveNoticeLayout.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						Intent intent = new Intent();
+						intent.setClass(getActivity(), YxtTeacherNoticeActivity.class);
+						startActivity(intent);
+					}
+				});
+
+				getMessage();
+			}
+
+			divider1.setVisibility(View.VISIBLE);
+			divider3.setVisibility(View.VISIBLE);
+			divider4.setVisibility(View.VISIBLE);
+			divider5.setVisibility(View.VISIBLE);
+		} else if (ConstantYXT.USER_FLAG_STUDENT.equalsIgnoreCase(GlobalDatasYxt.getUser(getActivity()).getFlag())) {
+			linearLayout1.setVisibility(View.GONE);
+			linearLayout2.setVisibility(View.GONE);
+			noticeLayout.setVisibility(View.GONE);
+			receiveNoticeLayout.setVisibility(View.VISIBLE);
+			
+			mVoteLinearLayout.setVisibility(View.GONE);
+			divider7.setVisibility(View.GONE);
+			
+			receiveNoticeLayout.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					Intent intent = new Intent();
+					intent.putExtra("name", userNameTextView.toString());
+					intent.putExtra("studentId", GlobalDatasYxt.getUser(getActivity()).getUserid());
+					intent.setClass(getActivity(), YxtMyMessageListActivity.class);
+					startActivity(intent);
+				}
+			});
+
+			gridViewClassList.setVisibility(View.GONE);
+
+			divider1.setVisibility(View.VISIBLE);
+//			divider2.setVisibility(View.GONE);
+			divider3.setVisibility(View.GONE);
+			divider4.setVisibility(View.GONE);
+			divider5.setVisibility(View.GONE);
+
+		}
+	}
+
+	private void showMessageNumber(int count) {
+		receiveNotice.setText(count + "条未读信息");
+		receiveNotice.setTextColor(Color.RED);
+	}
+
+	private void initData() {
+		YxtUser yxtUser = GlobalDatasYxt.getUser(getActivity());
+		if (yxtUser != null) {
+			userID = yxtUser.getUserid().toUpperCase();
+			setProgressBarVisibility(View.VISIBLE);
+			CloudClientYXT.doHttpRequest(getActivity(), ConstantYXT.GET_USERINFO,
+					NetImplYxt.getInstance().getPostStrWithGetUser(userID), null, new JSONResultHandler() {
+
+						@Override
+						public void onSuccess(String response) {
+							setProgressBarVisibility(View.GONE);
+							YxtUserInfoResult result = JSON.parseObject(response, YxtUserInfoResult.class);
+							if (result.getStatus() == 1) {
+								YxtUserInfo userInfo = result.getContent();
+								studentID = userInfo.getSchoolid();
+								studentName = userInfo.getSchool();
+								userName = userInfo.getName();
+								flag = userInfo.getFlag();
+								headLogo = userInfo.getHeadlogo();
+								YxtUser user = GlobalDatasYxt.getUser(getActivity());
+								user.setFlag(flag);
+								user.setHeadlogo(headLogo);
+								user.setIsparent(userInfo.isIsparent());
+								user.setName(userName);
+								GlobalDatasYxt.getCache(getActivity()).put(GlobalDatasConstant.KEY_USER, user);
+								showView();
+								userNameTextView.setText(userName);
+								classNameTextView.setText(userInfo.getClassname());
+								schoolNameTextView.setText(studentName);
+								if (userInfo.getHeadlogo() == null || "".equals(userInfo.getHeadlogo())) {
+									userAvatar.setImageResource(R.drawable.chat_student_ico);
+								} else {
+									BitmapImpl.getInstance().displayYxt(userAvatar,
+											ConstantYXT.REMOTE_HEADLOGO_URL + userInfo.getHeadlogo(),
+											R.drawable.chat_student_ico);
+								}
+								schoolNameTextView.setOnClickListener(new OnClickListener() {
+									@Override
+									public void onClick(View arg0) {
+										// 跳转学校详情
+										GotoUtil.gotoActivityWithBundle(getActivity(), YxtSchoolHomeActivity.class,
+												GotoUtil.setBundle(studentID, studentName));
+									}
+								});
+								if (!userInfo.getFlag().equalsIgnoreCase(ConstantYXT.USER_FLAG_NORMAL)) {
+									GlobalDatasYxt.IS_ACCESS = true;
+								} else {
+									GlobalDatasYxt.IS_ACCESS = false;
+								}
+								if (userInfo.getFlag().equalsIgnoreCase(ConstantYXT.USER_FLAG_PARENT)) {
+									setProgressBarVisibility(View.VISIBLE);
+									CloudClientYXT.doHttpRequest(getActivity(), ConstantYXT.GET_MYCHILD,
+											NetImplYxt.getInstance().getMyChild(userID), null, new JSONResultHandler() {
+
+										@Override
+										public void onSuccess(String jsonString) {
+											setProgressBarVisibility(View.GONE);
+											setChildView(jsonString);
+										}
+
+										@Override
+										public void onError(String errorMessage) {
+											// method stub
+											setProgressBarVisibility(View.GONE);
+										}
+									});
+								}
+							}
+						}
+
+						@Override
+						public void onError(String errorMessage) {
+							setProgressBarVisibility(View.GONE);
+						}
+					});
+		}
+	}
+
+	void setChildView(String response) {
+		YxtCommenResult result = JSON.parseObject(response, YxtCommenResult.class);
+		final String content = result.getContent();
+		final List<YxtChildList> data = JSON.parseArray(content, YxtChildList.class);
+		if (!ToolUtil.isListEmpty(data)) {
+			receiveNoticeLayout.setVisibility(View.VISIBLE);
+			if (GlobalDatasYxt.getUser(getActivity()).getFlag().equals(ConstantYXT.USER_FLAG_PARENT)) {
+				if (data.size() > 1) // 若有多个孩子
+				{
+					receiveNoticeLayout.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							// 跳转到多个孩子列表
+							Intent intent = new Intent();
+							intent.putExtra("studentInfo", content);
+							intent.setClass(getActivity(), YxtMessageListActivity.class);
+							startActivity(intent);
+						}
+					});
+				} else if (data.size() == 1) // 若只有一个孩子
+				{
+					receiveNoticeLayout.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View arg0) {
+							// 跳转到通知列表
+							Intent intent = new Intent();
+							intent.putExtra("name", data.get(0).getName());
+							intent.putExtra("studentId", data.get(0).getUserId());
+							intent.setClass(getActivity(), YxtMyMessageListActivity.class);
+							startActivity(intent);
+						}
+					});
+				}
+			}
+
+			getMessage();
+
+			childList.clear();
+			childList.addAll(data);
+			classListAdapter.notifyDataSetChanged();
+
+		} else {
+			receiveNoticeLayout.setVisibility(View.GONE);
+		}
+	}
+
+	private void getMessage() {
+		if(GlobalDatasYxt.isLogin()){
+			CloudClientYXT.doHttpRequest(getActivity(), ConstantYXT.GET_NoticeCount,
+					NetImplYxt.getInstance().getMessageCountALL(userID), null, new JSONResultHandler() {
+
+						@Override
+						public void onSuccess(String jsonString) {
+							YxtMessageResult result = JSON.parseObject(jsonString, YxtMessageResult.class);
+							String content = result.getContent();
+							int count = Integer.parseInt(content);
+							if (count != 0) {
+								showMessageNumber(count);
+								YxtBadgeManager.noticeNumber(count);
+							} else {
+								receiveNotice.setText("");
+								YxtBadgeManager.noticeNumber(0);
+							}
+						}
+
+						@Override
+						public void onError(String errorMessage) {
+							// method stub
+						}
+					});
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == Activity.RESULT_OK) {
+			if (requestCode == 1) {
+				String localPicPath = null;
+				Uri uri = data.getData();
+				ContentResolver contentResolver = getActivity().getContentResolver();
+				Cursor cursor = contentResolver.query(uri, null, null, null, null);
+				cursor.moveToFirst();
+				localPicPath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+				cursor.close();
+				if (localPicPath !=null && !localPicPath.equalsIgnoreCase("")) {
+					uploadFile(localPicPath);
+				}	
+			}
+			
+		}else if (resultCode == MyCameraActivity.RESULT_CAMERA) {
+			if (data != null) {
+				uploadFile(data.getStringExtra(MyCameraActivity.RESULT_KEY));
+			}else {
+//				do nothing
+			}
+		}else {
+//			do nothing
+		}
+	
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (!GlobalDatasYxt.isLogin()) {
+			// 回退的时候到第一个fragment
+			YXTTabActivity.context.setCurrentTab(0);
+		} else {
+			initData();
+		}
+	}
+
+	@Override
+	public void onHiddenChanged(boolean hidden) {
+		super.onHiddenChanged(hidden);
+		if (!hidden) {
+			initData();
+		}
+	}
+
+//	@Override
+//	public void onSaveInstanceState(Bundle outState) {
+//		// TODO Auto-generated method stub
+//		if (null != selectPictureHelper.getCaptureImagePath()) {
+//			outState.putString("imagePath", selectPictureHelper.getCaptureImagePath());
+//		}
+//		super.onSaveInstanceState(outState);
+//	}
+
+	void uploadFile(String imagePath) {
+		bitmap = BitmapFactory.decodeFile(imagePath);
+		bitmap = BitmapCompress.comp(bitmap);
+		final File picFile = new File(imagePath);
+		try {
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+
+				if (!picFile.getParentFile().exists()) {
+					picFile.getParentFile().mkdirs();
+				}
+
+				BufferedOutputStream bos;
+				bos = new BufferedOutputStream(new FileOutputStream(picFile));
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+				bos.flush();
+				bos.close();
+
+				picFile.createNewFile();
+				// 上传图片
+				setProgressBarVisibility(View.VISIBLE);
+				try {
+					CloudClientYXT.doUploadHttpRequest(getActivity(), ConstantYXT.SET_HEADLOGO,
+							NetImplYxt.getInstance().getPostStrWithUploadHeadLogo(userID, "jpg"), picFile,
+							new JSONResultHandler() {
+
+								@Override
+								public void onSuccess(String jsonString) {
+									setProgressBarVisibility(View.GONE);
+									userAvatar.setBackgroundResource(0);
+									userAvatar.setImageBitmap(bitmap);
+								}
+
+								@Override
+								public void onError(String errorMessage) {
+									setProgressBarVisibility(View.GONE);
+								}
+							});
+				} catch (NullPointerException e) {
+
+				}
+
+			} else {
+				ToastManager.showToast(getActivity(), "保存失败，SD卡无效");
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	class ClassListAdapter extends BaseAdapter {
+
+		public ClassListAdapter() {
+
+		}
+
+		@Override
+		public int getCount() {
+			return childList.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return childList.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@SuppressLint("NewApi")
+		@Override
+		public View getView(final int position, View convertView, ViewGroup parent) {
+			if (convertView == null) {
+				convertView = LayoutInflater.from(getActivity()).inflate(R.layout.y_child_list, null);
+			}
+
+			TextView studentNameTextView = (TextView) convertView.findViewById(R.id.student_name);
+			TextView classNameTextView = (TextView) convertView.findViewById(R.id.class_name);
+			LinearLayout schoolLinearLayout = (LinearLayout) convertView.findViewById(R.id.school);
+			ImageView schoolIcon = (ImageView) convertView.findViewById(R.id.school_pic);
+			TextView schoolNameTextView = (TextView) convertView.findViewById(R.id.school_name);
+			LinearLayout studentFileLinearLayout = (LinearLayout) convertView.findViewById(R.id.file);
+
+			studentNameTextView.setText(childList.get(position).getName());
+			classNameTextView.setText(childList.get(position).getClassName());
+			BitmapImpl.getInstance().displayYxt(schoolIcon, childList.get(position).getLogo(), R.drawable.asd);
+			schoolNameTextView.setText(childList.get(position).getSchoolName());
+
+			schoolLinearLayout.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					GotoUtil.gotoActivityWithBundle(getActivity(), YxtSchoolHomeActivity.class, GotoUtil
+							.setBundle(childList.get(position).getSchoolId(), childList.get(position).getSchoolName()));
+				}
+			});
+
+			studentFileLinearLayout.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					GotoUtil.gotoActivityWithBundle(getActivity(), YxtFileInfoListActivity.class,
+							GotoUtil.setBundle(childList.get(position).getUserId(), childList.get(position).getName()));
+				}
+			});
+
+			// group.setOnClickListener(new OnClickListener() {
+			//
+			// @Override
+			// public void onClick(View v) {
+			// if (group.isChecked()) {
+			// choiceIdArray[position] = classIdArray[position];
+			// } else {
+			// choiceIdArray[position] = null;
+			// }
+			// }
+			// });
+
+			return convertView;
+		}
+
+	}
+
+}

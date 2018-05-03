@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename field &apos;UserID&apos; in &apos;cn.com.yxt.yunxiaotong.activity.YXTActionScopeActivity&apos; to &apos;mUserId&apos;&#x0A;- Original project: &apos;yxt_Android&apos;&#x0A;- Original element: &apos;cn.com.yxt.yunxiaotong.activity.YXTActionScopeActivity.UserID&apos;&#x0A;- Renamed element: &apos;cn.com.yxt.yunxiaotong.activity.YXTActionScopeActivity.mUserId&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" delegate="false" deprecate="false" description="Rename field &apos;UserID&apos;" flags="589826" getter="false" id="org.eclipse.jdt.ui.rename.field" input="/src&lt;cn.com.yxt.yunxiaotong.activity{YXTActionScopeActivity.java[YXTActionScopeActivity^UserID" name="mUserId" references="true" setter="false" stamp="1484212244722" textual="false" version="1.0"/>
+</session>
