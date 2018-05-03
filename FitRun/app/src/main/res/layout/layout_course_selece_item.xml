@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="430px"
+              android:layout_height="650px">
+    <net.fitrun.fitrungame.view.FilterImageView
+        android:id="@+id/course_sport_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="-25px"
+        android:layout_marginRight="-25px"
+        android:scaleType="fitXY"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginBottom="60px"
+        android:gravity="center_horizontal|bottom">
+        <TextView
+            android:id="@+id/stamina_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="46px"
+            android:text="体 能 测 试"/>
+        <TextView
+            android:id="@+id/stamina_text_e"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="32px"
+            android:text="FITNESS TEST"/>
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:id="@+id/course_click"></RelativeLayout>
+
+</RelativeLayout>

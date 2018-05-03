@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval"
+    android:useLevel="false">
+    <solid android:color="@color/text_graydo"></solid>
+    <padding android:bottom="2dp"
+             android:left="2dp"
+             android:right="2dp"
+             android:top="2dp">
+
+    </padding>
+    <stroke android:width="3dp"
+            android:color="@color/text_graydo">
+
+    </stroke>
+    <!-- 渐变 -->
+    <gradient
+        android:startColor="@color/text_graydo"
+        android:endColor="@color/text_graydo"
+        android:useLevel="true"
+        android:angle="135"
+        android:type="linear"
+        android:centerX="0"
+        android:centerY="0"
+        android:gradientRadius="90"/>
+    <size android:width="80px"
+          android:height="80px"></size>
+</shape>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+    android:background="@drawable/question_bg">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/question_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent">
+    </android.support.v7.widget.RecyclerView>
+    <ImageView
+        android:id="@+id/question_back"
+        android:layout_width="81px"
+        android:layout_height="81px"
+        android:layout_marginTop="36px"
+        android:scaleType="fitXY"
+        android:background="@drawable/back"
+        android:layout_marginLeft="120px"/>
+
+</RelativeLayout>

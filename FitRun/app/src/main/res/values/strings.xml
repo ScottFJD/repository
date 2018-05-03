@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">飞跑</string>
+    <string name="menu_scan">扫描</string>
+    <string name="menu_stop">停止</string>
+    <string name="no_data">没有数据</string>
+    <string name="remark">您有比较好的运动习惯，但是运动需要规律性和适当的强度。您此次的运动强度比较合适，下次可以考虑在增加一公里的速度。对于那你的减肥效果会更好</string>
+</resources>

@@ -1,0 +1,66 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
+android {
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
+    defaultConfig {
+        applicationId "net.fitrun.fitrungame"
+        minSdkVersion 19
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            //设置支持的SO库架构
+            abiFilters 'armeabi','arm64-v8a','armeabi','armeabi-v7a','mips',"x86","x86_64"
+
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    greendao {
+        schemaVersion 2
+        daoPackage 'net.fitrun.fitrungame.greendao.gen'
+        targetGenDir 'src/main/java'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    testCompile 'junit:junit:4.12'
+    compile 'com.fang:dashview:v1.0.0'
+    compile 'com.github.dmytrodanylyk.shadow-layout:library:1.0.3'
+    compile 'com.android.support:recyclerview-v7:24.2.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile files('libs/com.baidu.tts_2.2.9.20161020_154fa02_release.jar')
+    compile 'com.squareup.retrofit2:retrofit:2.2.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.squareup.retrofit2:converter-scalars:2.1.0'
+    compile files('libs/galaxy-v2.0.jar')
+    compile project(':library')
+    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
+    compile files('libs/hellocharts-library-1.5.8.jar')
+    compile 'org.greenrobot:greendao-generator:3.0.0'
+    compile 'org.greenrobot:greendao:3.0.1'
+    compile 'com.skyfishjy.ripplebackground:library:1.0.1'
+    compile 'com.bigkoo:svprogresshud:1.0.6'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile project(':wheelview')
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.zhy:autolayout:1.4.5'
+
+    compile files('libs/zxing.jar')
+    compile project(':alertview')
+    compile 'com.tencent.bugly:crashreport:latest.release' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
+    compile 'com.tencent.bugly:nativecrashreport:latest.release' //其中latest.release指代最新Bugly NDK版本号，也可以指定明确的版本号，
+}

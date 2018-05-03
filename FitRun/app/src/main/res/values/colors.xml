@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="white">#FFFFFF</color>
+    <color name="shadow">#AA000000</color>
+    <color name="black">#FF000000</color>
+    <color name="ap_black">#33000000</color>
+    <color name="line">#57486e</color>
+    <color name="create_room">#bebfc7</color>
+    <color name="purple">#352453</color>
+    <color name="purple_s">#2f2047</color>
+    <color name="transparent">#00000000</color>
+    <color name="border_text">#497c47</color>
+    <color name="border_textd">#a96e12</color>
+    <color name="border_yello">#F4EA06</color>
+    <color name="text_yello">#f69100</color>
+    <color name="noti_title">#FFF400</color>
+    <color name="shadercolor1">#858583</color>
+    <color name="shadercolor2">#8BD14A</color>
+    <color name="shadercolor3">#C35731</color>
+    <color name="text_f4ea">#F4EA0A</color>
+    <color name="text_bbbb">#bbbbbb</color>
+    <color name="text_white">#F8F5F5</color>
+    <color name="text_bg">#fff400</color>
+    <color name="red">#FF2773</color>
+    <color name="blue">#5FB9FF</color>
+    <color name="miaobian">#a9abe6</color>
+    <color name="start_color">#212141</color>
+    <color name="end_color">#341d50</color>
+    <color name="endu_start_color">#212141</color>
+    <color name="endu_center_color">#402661</color>
+    <color name="endu_center_btom">#4f2b7c</color>
+    <color name="endu_end_color">#202743</color>
+    <color name="top_start_color">#2a2f49</color>
+    <color name="top_end_color">#3d2658</color>
+    <color name="text_gray8">#888888</color>
+    <color name="text_graydo">#D0D0D0</color>
+    <color name="text_ffa">#FFFA92</color>
+
+    <color name="dash_start_color">#AEAEAE</color>
+    <color name="dash_center_color">#85c83c</color>
+    <color name="dash_end_color">#D65F5F</color>
+    <color name="color_red">#FF5722</color>
+    <color name="color_orange">#FF9800</color>
+    <color name="color_yellow">#FFC107</color>
+    <color name="color_green">#3FB830</color>
+    <color name="color_light">#ECEFF1</color>
+    <color name="color_dark_light">#455A64</color>
+
+</resources>
